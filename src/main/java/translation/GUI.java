@@ -19,6 +19,10 @@ public class GUI {
     private final LinkedHashMap<String, String> displayLangToCode = new LinkedHashMap<>();
     private final LinkedHashMap<String, String> displayCountryToCode = new LinkedHashMap<>();
 
+    private static final Map<String,String> LANG_CODE_ALIASES = new HashMap<>() {{
+        put("kr","ko");
+    }};
+
     public GUI(Translator translator,
                CountryCodeConverter countryConv,
                LanguageCodeConverter langConv) {
@@ -34,18 +38,23 @@ public class GUI {
         List<String> langCodes = translator.getLanguageCodes();
         if (langCodes != null) {
             for (String c : langCodes) {
-                String name = langConv.fromLanguageCode(c);
-                String display = (name == null || name.isBlank()) ? c : name + " (" + c + ")";
-                displayLangToCode.put(display, c);
+                String code = c == null ? "" : c.toLowerCase(java.util.Locale.ROOT);
+                code = LANG_CODE_ALIASES.getOrDefault(code, code);
+                if (code.isBlank()) continue;
+                String name = langConv.fromLanguageCode(code);
+                String display = (name == null || name.isBlank()) ? code : name;
+                displayLangToCode.put(display, code);
             }
         }
         displayCountryToCode.clear();
         List<String> countryCodes = translator.getCountryCodes();
         if (countryCodes != null) {
             for (String a3 : countryCodes) {
-                String name = countryConv.fromCountryCode(a3);
-                String display = (name == null || name.isBlank()) ? a3.toUpperCase(Locale.ROOT) : name;
-                displayCountryToCode.put(display, a3);
+                String code = a3 == null ? "" : a3.toLowerCase(java.util.Locale.ROOT);
+                if (code.isBlank()) continue;
+                String name = countryConv.fromCountryCode(code);
+                String display = (name == null || name.isBlank()) ? code.toUpperCase(java.util.Locale.ROOT) : name;
+                displayCountryToCode.put(display, code);
             }
         }
     }
@@ -62,20 +71,18 @@ public class GUI {
         languageCombo.setFont(base);
         JLabel langLabel = new JLabel("Language:");
         langLabel.setFont(base);
-        int h = languageCombo.getPreferredSize().height;
-        FontMetrics fm = languageCombo.getFontMetrics(base);
-        int w = fm.charWidth('M') * 8 + 96;
-        languageCombo.setPreferredSize(new Dimension(w, h));
         langRow.add(langLabel);
         langRow.add(languageCombo);
 
         resultLabel = new JLabel("Translation: ", SwingConstants.CENTER);
         resultLabel.setFont(base);
+        JPanel resultRow = new JPanel(new BorderLayout());
+        resultRow.add(resultLabel, BorderLayout.CENTER);
 
         JPanel north = new JPanel();
         north.setLayout(new BoxLayout(north, BoxLayout.Y_AXIS));
         north.add(langRow);
-        north.add(resultLabel);
+        north.add(resultRow);
         frame.add(north, BorderLayout.NORTH);
 
         DefaultListModel<String> model = new DefaultListModel<>();
@@ -98,17 +105,15 @@ public class GUI {
         frame.setVisible(true);
     }
 
-
     private void updateTranslation() {
         String countryName = countryList.getSelectedValue();
         Object langDisplay = languageCombo.getSelectedItem();
         if (countryName == null || langDisplay == null) return;
-        String alpha3 = displayCountryToCode.get(countryName);
-        String langCode = displayLangToCode.get(langDisplay.toString());
+        String alpha3 = displayCountryToCode.get(countryName).toLowerCase(java.util.Locale.ROOT);
+        String langCode = displayLangToCode.get(langDisplay.toString()).toLowerCase(java.util.Locale.ROOT);
         String translated = translator.translate(alpha3, langCode);
         resultLabel.setText("Translation: " + (translated == null || translated.isBlank() ? "No translation found." : translated));
     }
-
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
