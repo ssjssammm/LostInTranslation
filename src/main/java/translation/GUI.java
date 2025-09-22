@@ -13,12 +13,17 @@ public class GUI {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
+            Translator translator = new CanadaTranslator();
+
             JPanel countryPanel = new JPanel();
             JTextField countryField = new JTextField(10);
-            countryField.setText("can");
-            countryField.setEditable(false); // we only support the "can" country code for now
             countryPanel.add(new JLabel("Country:"));
-            countryPanel.add(countryField);
+            // create combobox, add country codes into it, and add it to our panel
+            JComboBox<String> languageComboBox = new JComboBox<>();
+            for(String countryCode : translator.getLanguageCodes()) {
+                languageComboBox.addItem(countryCode);
+            }
+            countryPanel.add(languageComboBox);
 
 
 
@@ -26,11 +31,9 @@ public class GUI {
             JTextField languageField = new JTextField(10);
             languagePanel.add(new JLabel("Language:"));
             //Add scrollable language panel
-            Translator translator = new CanadaTranslator();
 
             String[] items = new String[translator.getLanguageCodes().size()];
 
-            JComboBox<String> languageComboBox = new JComboBox<>();
             int i = 0;
             for(String langaugeCode : translator.getLanguageCodes()) {
                 items[i++] = langaugeCode;
