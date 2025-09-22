@@ -20,10 +20,29 @@ public class GUI {
             countryPanel.add(new JLabel("Country:"));
             countryPanel.add(countryField);
 
+
+
             JPanel languagePanel = new JPanel();
             JTextField languageField = new JTextField(10);
             languagePanel.add(new JLabel("Language:"));
-            languagePanel.add(languageField);
+            //Add scrollable language panel
+            Translator translator = new CanadaTranslator();
+
+            String[] items = new String[translator.getLanguageCodes().size()];
+
+            JComboBox<String> languageComboBox = new JComboBox<>();
+            int i = 0;
+            for(String langaugeCode : translator.getLanguageCodes()) {
+                items[i++] = langaugeCode;
+            }
+
+            JList<String> list = new JList<>(items);
+            list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+
+            JScrollPane scrollPane = new JScrollPane(list);
+            languagePanel.add(scrollPane, 1);
+
+
 
             JPanel buttonPanel = new JPanel();
             JButton submit = new JButton("Submit");
