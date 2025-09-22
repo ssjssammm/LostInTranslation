@@ -13,17 +13,16 @@ public class GUI {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            Translator translator = new CanadaTranslator();
+            Translator translator = new JSONTranslator();
 
             JPanel countryPanel = new JPanel();
-            JTextField countryField = new JTextField(10);
             countryPanel.add(new JLabel("Country:"));
             // create combobox, add country codes into it, and add it to our panel
-            JComboBox<String> languageComboBox = new JComboBox<>();
-            for(String countryCode : translator.getLanguageCodes()) {
-                languageComboBox.addItem(countryCode);
+            JComboBox<String> countryComboBox = new JComboBox<>();
+            for(String countryCode : translator.getCountryCodes()) {
+                countryComboBox.addItem(countryCode);
             }
-            countryPanel.add(languageComboBox);
+            countryPanel.add(countryComboBox);
 
 
 
@@ -62,11 +61,11 @@ public class GUI {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     String language = languageField.getText();
-                    String country = countryField.getText();
+                    String country = (String) countryComboBox.getSelectedItem();
 
                     // for now, just using our simple translator, but
                     // we'll need to use the real JSON version later.
-                    Translator translator = new CanadaTranslator();
+                    //Translator translator = new CanadaTranslator();
 
                     String result = translator.translate(country, language);
                     if (result == null) {
